@@ -27,9 +27,12 @@ export function useChat() {
       }]);
     },
     onError: (error) => {
+      console.error("Chat request failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "I'm sorry, I'm having trouble processing your request right now. Please try again.",
+        content: "I apologize, but I'm having trouble understanding your request right now. Could you please try rephrasing it?",
+        error: errorMessage,
         timestamp: new Date(),
       }]);
     },

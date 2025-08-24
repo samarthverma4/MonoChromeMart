@@ -1,0 +1,533 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glide - Conversational Commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'near-black': '#111111',
+                        'neutral-gray': '#E6E6E6',
+                        'focus-gray': '#CCCCCC',
+                    },
+                    spacing: {
+                        '2': '8px',
+                        '4': '16px',
+                        '6': '24px',
+                        '8': '32px',
+                        '10': '40px',
+                        '12': '48px',
+                    },
+                    borderRadius: {
+                        'card': '12px',
+                    },
+                    transitionDuration: {
+                        '150': '150ms',
+                        '200': '200ms',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-white text-near-black antialiased">
+    <!-- @COMPONENT: TopAppBar -->
+    <header class="sticky top-0 z-50 bg-white border-b border-neutral-gray">
+        <div class="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold tracking-tight">GLIDE</h1>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl mx-8">
+                <div class="relative">
+                    <input 
+                        type="search" 
+                        placeholder="Search products..." 
+                        class="w-full px-4 py-2 border border-neutral-gray rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-near-black focus:border-transparent transition-all duration-150"
+                        data-implementation="Should integrate with product search API"
+                    />
+                    <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-gray"></i>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center space-x-4">
+                <button 
+                    class="p-2 hover:bg-neutral-gray rounded-full transition-colors duration-150 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    data-event="click:toggleChat"
+                    aria-label="Open chat assistant"
+                >
+                    <i class="far fa-comment text-lg"></i>
+                </button>
+                <button 
+                    class="p-2 hover:bg-neutral-gray rounded-full transition-colors duration-150 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label="User menu"
+                >
+                    <i class="far fa-user text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: TopAppBar -->
+
+    <!-- @COMPONENT: HeroSection -->
+    <section class="relative w-full h-96 bg-near-black text-white overflow-hidden">
+        <!-- Modern minimalist hero with geometric overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
+        <div class="relative z-10 flex items-center justify-center h-full px-4">
+            <div class="text-center max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+                    Shop with AI-Powered Assistance
+                </h1>
+                <p class="text-lg md:text-xl mb-8 text-white/90 max-w-xl mx-auto">
+                    Discover products through natural conversation. Let our AI help you find exactly what you need.
+                </p>
+                <button 
+                    class="bg-white text-near-black px-8 py-3 rounded-full font-medium hover:bg-neutral-gray transition-colors duration-150 uppercase tracking-wide text-sm"
+                    data-event="click:startShopping"
+                >
+                    START SHOPPING
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: HeroSection -->
+
+    <!-- @COMPONENT: FilterBar -->
+    <section class="sticky top-16 z-40 bg-white border-b border-neutral-gray py-4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center space-x-4 overflow-x-auto">
+                <span class="text-sm font-medium whitespace-nowrap">Filter by:</span>
+                <!-- @MAP: categories.map(category => ( -->
+                <button class="px-4 py-2 border border-neutral-gray rounded-full text-sm hover:bg-neutral-gray transition-colors duration-150 whitespace-nowrap min-h-[44px]" data-mock="true">
+                    Electronics
+                </button>
+                <button class="px-4 py-2 border border-neutral-gray rounded-full text-sm hover:bg-neutral-gray transition-colors duration-150 whitespace-nowrap min-h-[44px]" data-mock="true">
+                    Clothing
+                </button>
+                <button class="px-4 py-2 border border-neutral-gray rounded-full text-sm hover:bg-neutral-gray transition-colors duration-150 whitespace-nowrap min-h-[44px]" data-mock="true">
+                    Home & Garden
+                </button>
+                <button class="px-4 py-2 border border-neutral-gray rounded-full text-sm hover:bg-neutral-gray transition-colors duration-150 whitespace-nowrap min-h-[44px]" data-mock="true">
+                    Books
+                </button>
+                <button class="px-4 py-2 border border-neutral-gray rounded-full text-sm hover:bg-neutral-gray transition-colors duration-150 whitespace-nowrap min-h-[44px]" data-mock="true">
+                    Sports
+                </button>
+                <!-- @END_MAP )) -->
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: FilterBar -->
+
+    <!-- @COMPONENT: ProductGrid -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-medium">Featured Products</h2>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600" data-bind="productCount">248 products</span>
+                <select class="border border-neutral-gray rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-near-black">
+                    <option>Sort by relevance</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Newest</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- @MAP: products.map(product => ( -->
+            
+            <!-- Product Card 1 -->
+            <div class="bg-white border border-neutral-gray rounded-card overflow-hidden hover:shadow-lg transition-shadow duration-200 group" data-mock="true">
+                <!-- Wireless Bluetooth Headphones -->
+                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                     alt="Modern wireless headphones" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                <div class="p-4">
+                    <h3 class="font-medium text-sm mb-2" data-bind="product.name">Wireless Bluetooth Headphones</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-bind="product.description">Premium sound quality with active noise cancellation and 30-hour battery life.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" data-bind="product.price">$129.99</span>
+                        <button 
+                            class="bg-near-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors duration-150 uppercase tracking-wide min-h-[44px]"
+                            data-event="click:addToCart"
+                        >
+                            ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 2 -->
+            <div class="bg-white border border-neutral-gray rounded-card overflow-hidden hover:shadow-lg transition-shadow duration-200 group" data-mock="true">
+                <!-- Minimalist desk setup with laptop -->
+                <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                     alt="Ergonomic office chair" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                <div class="p-4">
+                    <h3 class="font-medium text-sm mb-2" data-bind="product.name">Ergonomic Office Chair</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-bind="product.description">Lumbar support and breathable mesh design for all-day comfort during work.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" data-bind="product.price">$289.99</span>
+                        <button 
+                            class="bg-near-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors duration-150 uppercase tracking-wide min-h-[44px]"
+                            data-event="click:addToCart"
+                        >
+                            ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 3 -->
+            <div class="bg-white border border-neutral-gray rounded-card overflow-hidden hover:shadow-lg transition-shadow duration-200 group" data-mock="true">
+                <!-- Smartphone on clean background -->
+                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                     alt="Modern smartphone" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                <div class="p-4">
+                    <h3 class="font-medium text-sm mb-2" data-bind="product.name">Smartphone Pro Max</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-bind="product.description">Latest flagship device with advanced camera system and lightning-fast performance.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" data-bind="product.price">$999.99</span>
+                        <button 
+                            class="bg-near-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors duration-150 uppercase tracking-wide min-h-[44px]"
+                            data-event="click:addToCart"
+                        >
+                            ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 4 -->
+            <div class="bg-white border border-neutral-gray rounded-card overflow-hidden hover:shadow-lg transition-shadow duration-200 group" data-mock="true">
+                <!-- Coffee maker on kitchen counter -->
+                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                     alt="Premium coffee maker" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                <div class="p-4">
+                    <h3 class="font-medium text-sm mb-2" data-bind="product.name">Premium Coffee Maker</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-bind="product.description">Programmable brewing system with built-in grinder for the perfect cup every time.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" data-bind="product.price">$189.99</span>
+                        <button 
+                            class="bg-near-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors duration-150 uppercase tracking-wide min-h-[44px]"
+                            data-event="click:addToCart"
+                        >
+                            ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 5 -->
+            <div class="bg-white border border-neutral-gray rounded-card overflow-hidden hover:shadow-lg transition-shadow duration-200 group" data-mock="true">
+                <!-- Running shoes on white background -->
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                     alt="Athletic running shoes" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                <div class="p-4">
+                    <h3 class="font-medium text-sm mb-2" data-bind="product.name">Athletic Running Shoes</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-bind="product.description">Lightweight design with responsive cushioning for optimal performance and comfort.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" data-bind="product.price">$149.99</span>
+                        <button 
+                            class="bg-near-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors duration-150 uppercase tracking-wide min-h-[44px]"
+                            data-event="click:addToCart"
+                        >
+                            ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 6 -->
+            <div class="bg-white border border-neutral-gray rounded-card overflow-hidden hover:shadow-lg transition-shadow duration-200 group" data-mock="true">
+                <!-- Backpack for travel -->
+                <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                     alt="Travel backpack" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                <div class="p-4">
+                    <h3 class="font-medium text-sm mb-2" data-bind="product.name">Travel Backpack Pro</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-bind="product.description">Durable and spacious design with multiple compartments for organized travel.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" data-bind="product.price">$79.99</span>
+                        <button 
+                            class="bg-near-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition-colors duration-150 uppercase tracking-wide min-h-[44px]"
+                            data-event="click:addToCart"
+                        >
+                            ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- @END_MAP )) -->
+        </div>
+
+        <!-- Load More -->
+        <div class="text-center mt-12">
+            <button 
+                class="px-8 py-3 border border-neutral-gray rounded-full hover:bg-neutral-gray transition-colors duration-150 uppercase tracking-wide text-sm"
+                data-event="click:loadMore"
+            >
+                LOAD MORE PRODUCTS
+            </button>
+        </div>
+    </main>
+    <!-- @END_COMPONENT: ProductGrid -->
+
+    <!-- @COMPONENT: StickyCartBar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-gray z-40" id="cartBar" style="display: none;">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-shopping-cart text-lg"></i>
+                    <span class="font-medium" data-bind="cart.itemCount">3 items</span>
+                    <span class="text-gray-600" data-bind="cart.total">$569.97</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button 
+                        class="text-sm hover:text-gray-600 transition-colors duration-150 min-h-[44px] px-4"
+                        data-event="click:viewCart"
+                    >
+                        VIEW CART
+                    </button>
+                    <button 
+                        class="bg-near-black text-white px-6 py-2 rounded uppercase tracking-wide text-sm hover:bg-gray-800 transition-colors duration-150 min-h-[44px]"
+                        data-event="click:checkout"
+                    >
+                        CHECKOUT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: StickyCartBar -->
+
+    <!-- @COMPONENT: ChatSlideOver -->
+    <div class="fixed inset-0 z-50 overflow-hidden" id="chatSlideOver" style="display: none;">
+        <div class="absolute inset-0 bg-black bg-opacity-50" id="chatOverlay"></div>
+        <div class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl transform translate-x-full transition-transform duration-200 ease-in-out" id="chatPanel">
+            <!-- Chat Header -->
+            <div class="flex items-center justify-between p-4 border-b border-neutral-gray">
+                <h3 class="font-medium">Shopping Assistant</h3>
+                <button 
+                    class="p-2 hover:bg-neutral-gray rounded-full transition-colors duration-150 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    id="closeChatBtn"
+                    aria-label="Close chat"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 h-[calc(100vh-140px)]" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="flex items-start space-x-3">
+                    <div class="bg-near-black text-white p-3 rounded-lg max-w-xs">
+                        <p class="text-sm">Hi! I'm your shopping assistant. I can help you find products, check inventory, and guide you through your purchase. What are you looking for today?</p>
+                    </div>
+                </div>
+
+                <!-- User Message Example -->
+                <div class="flex items-start space-x-3 justify-end" data-mock="true">
+                    <div class="bg-white border border-neutral-gray text-near-black p-3 rounded-lg max-w-xs">
+                        <p class="text-sm">I'm looking for wireless headphones under $150</p>
+                    </div>
+                </div>
+
+                <!-- Assistant Response with Product Recommendations -->
+                <div class="flex items-start space-x-3" data-mock="true">
+                    <div class="bg-near-black text-white p-3 rounded-lg max-w-xs">
+                        <p class="text-sm mb-3">I found several great wireless headphones under $150. Here are my top recommendations:</p>
+                        <!-- Code-style block for product details -->
+                        <div class="bg-gray-800 p-2 rounded text-xs font-mono mb-3">
+                            <div>• Wireless Bluetooth Headphones - $129.99</div>
+                            <div>• Premium sound, 30hr battery</div>
+                            <div>• 4.8/5 rating, 2.1k reviews</div>
+                        </div>
+                        <p class="text-sm">Would you like me to add any of these to your cart or show you more details?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-neutral-gray">
+                <div class="flex space-x-2">
+                    <input 
+                        type="text" 
+                        placeholder="Ask me anything about products..." 
+                        class="flex-1 px-3 py-2 border border-neutral-gray rounded text-sm focus:outline-none focus:ring-2 focus:ring-near-black focus:border-transparent"
+                        id="chatInput"
+                        data-implementation="Should send to Gemini API for processing"
+                    />
+                    <button 
+                        class="bg-near-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors duration-150 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        id="sendChatBtn"
+                        data-event="click:sendMessage"
+                    >
+                        <i class="fas fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: ChatSlideOver -->
+
+    <!-- @STATE: chatOpen:boolean = false -->
+    <!-- @STATE: cartItems:array = [] -->
+    <!-- @STATE: cartTotal:number = 0 -->
+
+    <script>
+        // TODO: Implement Gemini API integration for conversational commerce
+        // TODO: Implement vector search for semantic product retrieval
+        // TODO: Implement state management for cart and user interactions
+        
+        (function() {
+            // Chat functionality
+            const chatSlideOver = document.getElementById('chatSlideOver');
+            const chatPanel = document.getElementById('chatPanel');
+            const chatOverlay = document.getElementById('chatOverlay');
+            const chatInput = document.getElementById('chatInput');
+            const sendChatBtn = document.getElementById('sendChatBtn');
+            const chatMessages = document.getElementById('chatMessages');
+            const cartBar = document.getElementById('cartBar');
+            
+            // Toggle chat panel
+            function toggleChat() {
+                const isOpen = chatSlideOver.style.display !== 'none';
+                if (!isOpen) {
+                    chatSlideOver.style.display = 'block';
+                    setTimeout(() => {
+                        chatPanel.style.transform = 'translateX(0)';
+                    }, 10);
+                } else {
+                    chatPanel.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        chatSlideOver.style.display = 'none';
+                    }, 200);
+                }
+            }
+
+            // Close chat when clicking overlay
+            chatOverlay?.addEventListener('click', toggleChat);
+            document.getElementById('closeChatBtn')?.addEventListener('click', toggleChat);
+            
+            // Open chat from header button
+            document.querySelector('[data-event="click:toggleChat"]')?.addEventListener('click', toggleChat);
+
+            // Send chat message
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                // Add user message to chat
+                const userMessage = document.createElement('div');
+                userMessage.className = 'flex items-start space-x-3 justify-end';
+                userMessage.innerHTML = `
+                    <div class="bg-white border border-neutral-gray text-near-black p-3 rounded-lg max-w-xs">
+                        <p class="text-sm">${message}</p>
+                    </div>
+                `;
+                chatMessages.appendChild(userMessage);
+
+                chatInput.value = '';
+
+                // Simulate AI response
+                setTimeout(() => {
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'flex items-start space-x-3';
+                    aiMessage.innerHTML = `
+                        <div class="bg-near-black text-white p-3 rounded-lg max-w-xs">
+                            <p class="text-sm">I understand you're looking for "${message}". Let me search our catalog and find the best options for you.</p>
+                        </div>
+                    `;
+                    chatMessages.appendChild(aiMessage);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            sendChatBtn?.addEventListener('click', sendMessage);
+            chatInput?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Cart functionality
+            let cartItems = [];
+            
+            function addToCart(productData) {
+                cartItems.push(productData);
+                updateCartDisplay();
+                showCartBar();
+            }
+
+            function updateCartDisplay() {
+                const itemCount = cartItems.length;
+                const total = cartItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+                
+                document.querySelector('[data-bind="cart.itemCount"]').textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
+                document.querySelector('[data-bind="cart.total"]').textContent = `$${total.toFixed(2)}`;
+            }
+
+            function showCartBar() {
+                if (cartItems.length > 0) {
+                    cartBar.style.display = 'block';
+                }
+            }
+
+            // Add to cart button handlers
+            document.querySelectorAll('[data-event="click:addToCart"]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const card = e.target.closest('.group');
+                    const productName = card.querySelector('[data-bind="product.name"]').textContent;
+                    const productPrice = card.querySelector('[data-bind="product.price"]').textContent.replace('$', '');
+                    
+                    addToCart({
+                        name: productName,
+                        price: productPrice
+                    });
+
+                    // Visual feedback
+                    btn.textContent = 'ADDED!';
+                    btn.classList.add('bg-green-600');
+                    setTimeout(() => {
+                        btn.textContent = 'ADD TO CART';
+                        btn.classList.remove('bg-green-600');
+                    }, 1500);
+                });
+            });
+
+            // Mobile responsive chat (convert to bottom sheet on small screens)
+            function updateChatLayout() {
+                if (window.innerWidth < 768) {
+                    chatPanel.classList.add('bottom-0', 'h-3/4', 'w-full', 'max-w-none');
+                    chatPanel.classList.remove('right-0', 'top-0', 'h-full', 'max-w-md');
+                } else {
+                    chatPanel.classList.remove('bottom-0', 'h-3/4', 'w-full', 'max-w-none');
+                    chatPanel.classList.add('right-0', 'top-0', 'h-full', 'max-w-md');
+                }
+            }
+
+            window.addEventListener('resize', updateChatLayout);
+            updateChatLayout();
+        })();
+    </script>
+</body>
+</html>

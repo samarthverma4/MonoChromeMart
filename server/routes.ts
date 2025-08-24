@@ -184,17 +184,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { message } = req.body;
       
       if (!message || typeof message !== "string") {
-        return res.status(400).json({ message: "Message is required" });
+        return res.status(400).json({ 
+          error: "Invalid request",
+          message: "Message is required and must be a string" 
+        });
       }
 
       const result = await processShoppingQuery(message);
+      
+      if (!result.response) {
+        throw new Error("No response generated");
+      }
+
       res.json(result);
     } catch (error) {
       console.error("Chat API error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      
       res.status(500).json({ 
+        error: "Processing failed",
         message: "Sorry, I'm having trouble processing your request right now. Please try again.",
         response: "I'm experiencing some technical difficulties. Please try again in a moment.",
-        intent: { intent: "general" }
+        intent: { intent: "general" },
+        details: errorMessage
       });
     }
   });

@@ -2,9 +2,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "../storage";
 import type { Product } from "@shared/schema";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCDbJfZ6hNVSgIxNoYNIFgM6_PDJs3_IMI';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBYta0_8d1oX0jK9_LaWHSFfJsshw4WD_g';
+
 const ai = new GoogleGenerativeAI(GEMINI_API_KEY);
-const MODEL_NAME = "gemini-pro";
+const model = ai.getGenerativeModel({ model: "gemini-pro" });
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -27,7 +28,6 @@ export interface ShoppingIntent {
 
 export async function analyzeShoppingIntent(message: string): Promise<ShoppingIntent> {
   try {
-    const genModel = ai.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `You are a shopping assistant that analyzes user messages to understand their shopping intent.
 Classify the following message into one of these intents:
 - "search": User wants to find specific products
@@ -47,24 +47,22 @@ Message: "${message}"
 Respond with ONLY a JSON object in this format:
 {"intent": "search", "query": "wireless headphones", "category": "electronics", "priceRange": {"min": 0, "max": 150}}`;
 
-    const model = ai.getGenerativeModel({ model: "gemini-1.0-pro" });
-    const genResult = await genModel.generateContent(prompt);
-    const genResponse = await genResult.response;
-    const text = genResponse.text();
-    
-    if (!text) {
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    if (!response.text()) {
       throw new Error("Empty response from Gemini API");
     }
 
+    const text = response.text();
     try {
       return JSON.parse(text);
     } catch (parseError) {
       console.error("Invalid JSON from Gemini API:", text);
-      return { intent: "general" };
+      throw new Error("Failed to parse AI response");
     }
   } catch (error) {
     console.error("Error analyzing shopping intent:", error);
-    throw error;
+    return { intent: "general" };
   }
 }
 
@@ -102,45 +100,44 @@ export async function getProductRecommendations(
 }
 
 export async function generateChatResponse(
-  userMessage: string, 
+  userMessage: string,
   intent: ShoppingIntent,
   products?: Product[]
 ): Promise<string> {
   try {
-    const model = ai.getGenerativeModel({ model: MODEL_NAME });
-    let systemPrompt = `You are Glide's AI shopping assistant. You help customers find products and make purchasing decisions.
+    let prompt = `You are Glide's AI shopping assistant. Help customers find products and make purchasing decisions.
 
 Key guidelines:
 - Be helpful, friendly, and concise
 - Focus on product benefits and features
 - Always mention specific prices when discussing products
 - Use natural, conversational language
-- If showing multiple products, format them in a clean, readable way
-- For product details, include: name, price, key features
 - Keep responses under 200 words
-- Never hallucinate product information - only use provided data`;
+- Never make up product information - only use provided data
 
-    let contextPrompt = `User message: "${userMessage}"\nIntent: ${intent.intent}\n`;
-    
+User message: "${userMessage}"
+Intent: ${intent.intent}
+`;
+
     if (products && products.length > 0) {
-      contextPrompt += `\nAvailable products:\n`;
+      prompt += "\nAvailable products:\n";
       products.forEach(product => {
-        contextPrompt += `- ${product.name}: $${product.price}\n  ${product.description}\n  Category: ${product.category}\n  In stock: ${product.inventory} units\n\n`;
+        prompt += `- ${product.name}: $${product.price}\n  ${product.description}\n  Category: ${product.category}\n  In stock: ${product.inventory} units\n\n`;
       });
     }
 
-    const response = await model.generateContent({
-      contents: [
-        { role: "user", parts: [{ text: systemPrompt }] },
-        { role: "user", parts: [{ text: contextPrompt }] }
-      ]
-    });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+    
+    if (!text) {
+      throw new Error("Empty response from Gemini API");
+    }
 
-    const result = await response.response.text();
-    return result || "I'm sorry, I couldn't process your request right now. Please try again.";
+    return text;
   } catch (error) {
     console.error("Error generating chat response:", error);
-    return "I'm experiencing some technical difficulties. Please try again in a moment.";
+    return "I'm sorry, I'm having trouble processing your request right now. Please try again in a moment.";
   }
 }
 
@@ -152,33 +149,41 @@ export async function processShoppingQuery(message: string): Promise<{
   const intent = await analyzeShoppingIntent(message);
   let products: Product[] = [];
   
-  switch (intent.intent) {
-    case "search":
-      if (intent.query) {
-        products = await searchProducts(intent.query, intent.priceRange);
-      }
-      break;
-      
-    case "recommend":
-      products = await getProductRecommendations(intent.category, intent.priceRange);
-      break;
-      
-    case "get_info":
-      if (intent.productId) {
-        const product = await storage.getProduct(intent.productId);
-        if (product) products = [product];
-      } else if (intent.query) {
-        products = await searchProducts(intent.query);
-        products = products.slice(0, 1); // Just the best match
-      }
-      break;
+  try {
+    switch (intent.intent) {
+      case "search":
+        if (intent.query) {
+          products = await searchProducts(intent.query, intent.priceRange);
+        }
+        break;
+        
+      case "recommend":
+        products = await getProductRecommendations(intent.category, intent.priceRange);
+        break;
+        
+      case "get_info":
+        if (intent.productId) {
+          const product = await storage.getProduct(intent.productId);
+          if (product) products = [product];
+        } else if (intent.query) {
+          products = await searchProducts(intent.query);
+          products = products.slice(0, 1); // Just the best match
+        }
+        break;
+    }
+    
+    const response = await generateChatResponse(message, intent, products);
+    
+    return {
+      response,
+      products: products.length > 0 ? products : undefined,
+      intent,
+    };
+  } catch (error) {
+    console.error("Error processing shopping query:", error);
+    return {
+      response: "I'm having trouble understanding your request. Could you please try rephrasing it?",
+      intent,
+    };
   }
-  
-  const response = await generateChatResponse(message, intent, products);
-  
-  return {
-    response,
-    products: products.length > 0 ? products : undefined,
-    intent
-  };
 }
